@@ -1,0 +1,259 @@
+{% comment %}
+  Hero section — matches .hero in purelane-homepage.html
+  - Heading / subheading / CTAs are merchant-editable text settings
+  - Rotator "slides" (1, 2, or 3 products shown together) are blocks,
+    each linked to a REAL Shopify product via product picker so price,
+    compare-at price and image always come from the platform.
+  - Side badges are blocks too, so a merchant can add/remove/reorder them.
+{% endcomment %}
+
+<section class="pl-hero" data-scene="1" id="hero">
+  <div class="pl-hero-grid">
+    <div class="pl-hero-copy">
+      {% if section.settings.eyebrow != blank %}
+        <p class="pl-rule pl-rv">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span class="pl-d4" style="color:var(--paper-2);text-transform:none;font-weight:600">{{ section.settings.eyebrow }}</span>
+          <i></i>
+        </p>
+      {% endif %}
+
+      <h1 class="pl-d1 pl-rv pl-rv-d1">
+        {{ section.settings.heading_line_1 }}<br>
+        <span class="pl-lime">{{ section.settings.heading_line_2 }}</span>
+      </h1>
+
+      {% if section.settings.subheading != blank %}
+        <p class="pl-lede pl-rv pl-rv-d2">{{ section.settings.subheading }}</p>
+      {% endif %}
+
+      <div class="pl-hero-cta pl-rv pl-rv-d3">
+        {% if section.settings.cta_primary_text != blank %}
+          <a href="{{ section.settings.cta_primary_link }}" class="pl-btn pl-btn-primary">
+            {{ section.settings.cta_primary_text }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        {% endif %}
+        {% if section.settings.cta_secondary_text != blank %}
+          <a href="{{ section.settings.cta_secondary_link }}" class="pl-btn pl-btn-ghost">
+            {{ section.settings.cta_secondary_text }}
+          </a>
+        {% endif %}
+      </div>
+
+      {% comment %} mobile badge strip — shown under copy on small screens {% endcomment %}
+      {% if section.blocks.size > 0 %}
+        <div class="pl-badgestrip pl-rv pl-rv-d4">
+          {% for block in section.blocks %}
+            {% if block.type == 'badge' %}
+              <div>
+                {{ block.settings.icon }}
+                {{ block.settings.label }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {% comment %} desktop side badge rail {% endcomment %}
+    {% if section.blocks.size > 0 %}
+      <div class="pl-badges pl-rv pl-rv-d3">
+        {% for block in section.blocks %}
+          {% if block.type == 'badge' %}
+            <div class="pl-badge" {{ block.shopify_attributes }}>
+              <span class="pl-bi">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/></svg>
+              </span>
+              <span>{{ block.settings.label }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% comment %} ---------- product rotator ---------- {% endcomment %}
+  {% assign slide_blocks = section.blocks | where: 'type', 'rotator_slide' %}
+  {% if slide_blocks.size > 0 %}
+    <div class="pl-hero-prod">
+      <div class="pl-hstage" data-hero-rotator data-autoplay="{{ section.settings.autoplay_ms }}">
+        {% for block in slide_blocks %}
+          {% assign p1 = block.settings.product_1 %}
+          {% assign p2 = block.settings.product_2 %}
+          {% assign p3 = block.settings.product_3 %}
+
+          {% comment %} pick the "lead" product for price display: last filled slot {% endcomment %}
+          {% assign lead = p1 %}
+          {% if p2 != blank %}{% assign lead = p2 %}{% endif %}
+          {% if p3 != blank %}{% assign lead = p3 %}{% endif %}
+
+          {% assign slide_count = 1 %}
+          {% if p2 != blank %}{% assign slide_count = 2 %}{% endif %}
+          {% if p3 != blank %}{% assign slide_count = 3 %}{% endif %}
+
+          <div class="pl-hslide {% if forloop.first %}pl-on{% endif %} pl-hs{{ slide_count }}"
+               {{ block.shopify_attributes }}>
+
+            {% if p1 != blank %}
+              <div class="pl-hp pl-a pl-d1" style="background-image:url('{{ p1.featured_image | image_url: width: 500 }}');aspect-ratio:{{ p1.featured_image.aspect_ratio | default: 0.65 }}"></div>
+            {% endif %}
+            {% if p2 != blank %}
+              <div class="pl-hp pl-b pl-d2" style="background-image:url('{{ p2.featured_image | image_url: width: 500 }}');aspect-ratio:{{ p2.featured_image.aspect_ratio | default: 0.65 }}"></div>
+            {% endif %}
+            {% if p3 != blank %}
+              <div class="pl-hp pl-c pl-d3" style="background-image:url('{{ p3.featured_image | image_url: width: 500 }}');aspect-ratio:{{ p3.featured_image.aspect_ratio | default: 0.65 }}"></div>
+            {% endif %}
+
+            {% if lead != blank %}
+              <div class="pl-ptag pl-glass-2">
+                <span class="pl-lbl">{{ block.settings.label | default: lead.title }}</span>
+                <span class="pl-val">
+                  <strong>{{ lead.price | money_without_trailing_zeros }}</strong>
+                  {% if lead.compare_at_price > lead.price %}
+                    <s>{{ lead.compare_at_price | money_without_trailing_zeros }}</s>
+                  {% endif %}
+                </span>
+                {% if block.settings.discount_text != blank %}
+                  <span class="pl-cut">{{ block.settings.discount_text }}</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if slide_blocks.size > 1 %}
+        <div class="pl-hdots" data-hero-dots role="tablist" aria-label="Featured products">
+          {% for block in slide_blocks %}
+            <button type="button" class="{% if forloop.first %}pl-on{% endif %}" aria-label="Show slide {{ forloop.index }}"></button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "section",
+  "class": "shopify-section-hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "100% plant-based cleaning"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Heading, line 1",
+      "default": "Clean home,"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2",
+      "label": "Heading, line 2 (accent colour)",
+      "default": "simply."
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Plant-based cleaners for every surface in your home. Tough on grime, gentle on everything else."
+    },
+    {
+      "type": "text",
+      "id": "cta_primary_text",
+      "label": "Primary button text",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "cta_primary_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "cta_secondary_text",
+      "label": "Secondary button text",
+      "default": "Build a bundle"
+    },
+    {
+      "type": "url",
+      "id": "cta_secondary_link",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_ms",
+      "label": "Rotator autoplay interval (ms)",
+      "min": 0,
+      "max": 8000,
+      "step": 500,
+      "default": 4000,
+      "info": "Set to 0 to disable autoplay"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "rotator_slide",
+      "name": "Rotator slide",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "Product 1 (required)"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "Product 2 (optional — shows 2-up)"
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "Product 3 (optional — shows 3-up combo)"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Price tag label",
+          "info": "Defaults to the lead product's title if left blank"
+        },
+        {
+          "type": "text",
+          "id": "discount_text",
+          "label": "Discount badge text",
+          "default": "Save 20%"
+        }
+      ]
+    },
+    {
+      "type": "badge",
+      "name": "Trust badge",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Free shipping"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero",
+      "blocks": [
+        { "type": "rotator_slide" },
+        { "type": "badge", "settings": { "label": "Free shipping" } },
+        { "type": "badge", "settings": { "label": "Plant-based" } },
+        { "type": "badge", "settings": { "label": "30,000+ homes" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

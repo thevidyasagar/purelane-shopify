@@ -1,0 +1,12 @@
+{% comment %}
+  Renders the fixed, full-page gradient "scene" backdrop that crossfades
+  as the visitor scrolls past sections carrying a data-scene attribute.
+  Include this ONCE in theme.liquid, right after <body>.
+{% endcomment %}
+<div class="pl-scenes" id="pl-scenes" data-d="1" aria-hidden="true">
+  <div class="pl-scene pl-s1 pl-on"></div>
+  <div class="pl-scene pl-s2"></div>
+  <div class="pl-scene pl-s3"></div>
+  <div class="pl-scene pl-s4"></div>
+  <div class="pl-vig"></div>
+</div>
