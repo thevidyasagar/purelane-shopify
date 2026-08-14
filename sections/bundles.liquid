@@ -1,0 +1,136 @@
+{% comment %}
+  Bundles — matches #bundles in purelane-homepage.html.
+  A "tier" is a fixed flat price for picking N products (2/3/5 etc).
+  Like combos, the flat tier price has no native Shopify field, so
+  merchants edit it as plain text per block. Product images shown
+  in each tier are real Shopify products for visual accuracy.
+{% endcomment %}
+
+<section class="pl-sec" data-scene="{{ section.settings.scene_number }}" id="bundles">
+  <div class="pl-wrap">
+    <div class="pl-glass-2" style="padding:clamp(26px,3.4vw,40px);margin-bottom:16px" class="pl-rv">
+      <div class="pl-panel-head" style="margin-bottom:0">
+        {% if section.settings.kicker != blank %}
+          <span class="pl-d4" style="color:var(--paper-3);letter-spacing:.22em;text-transform:uppercase;font-weight:700;font-size:11px">{{ section.settings.kicker }}</span>
+        {% endif %}
+        <h2 class="pl-d2" style="margin-top:12px">{{ section.settings.heading }}</h2>
+        {% if section.settings.subheading != blank %}
+          <p class="pl-lede" style="margin:0 auto">{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="pl-tiers">
+      {% for block in section.blocks %}
+        {% if block.type == 'tier' %}
+          <article class="pl-glass-2 pl-tier pl-rv {% if block.settings.is_best %}pl-best{% endif %}" {{ block.shopify_attributes }}>
+            <span class="pl-tag">{{ block.settings.tag }}</span>
+
+            {% assign tier_imgs = 0 %}
+            {% for i in (1..5) %}
+              {% assign k = 'product_' | append: i %}
+              {% if block.settings[k] != blank %}{% assign tier_imgs = tier_imgs | plus: 1 %}{% endif %}
+            {% endfor %}
+            {% if tier_imgs > 0 %}
+              <div class="pl-tierpix {% if tier_imgs >= 5 %}pl-five{% endif %}" aria-hidden="true">
+                {% for i in (1..5) %}
+                  {% assign k = 'product_' | append: i %}
+                  {% assign tier_prod = block.settings[k] %}
+                  {% if tier_prod != blank and tier_prod.featured_image != blank %}
+                    <img src="{{ tier_prod.featured_image | image_url: width: 140 }}" alt="{{ tier_prod.title | escape }}" loading="lazy">
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="pl-qty">{{ block.settings.product_count }}<small>Products</small></div>
+            <div class="pl-price">{{ block.settings.tier_price }} <s>{{ block.settings.tier_compare_price }}</s></div>
+            {% if block.settings.per_product_note != blank %}
+              <p style="font-size:12px;color:var(--paper-2)">{{ block.settings.per_product_note }}</p>
+            {% endif %}
+
+            <ul>
+              {% for i in (1..3) %}
+                {% assign fk = 'feature_' | append: i %}
+                {% if block.settings[fk] != blank %}
+                  <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                    {{ block.settings[fk] }}
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+
+            <a href="{{ block.settings.button_link | default: '#shop' }}" class="pl-btn {% if block.settings.is_best %}pl-btn-primary{% else %}pl-btn-ghost{% endif %}">
+              {{ block.settings.button_text | default: 'Build this box' }}
+              {% if block.settings.is_best %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-6 6 6-6 6"/></svg>
+              {% endif %}
+            </a>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Bundles",
+  "tag": "section",
+  "class": "shopify-section-bundles",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker text", "default": "Build your bundle" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "One box. Every room." },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "Mix and match across kitchen, laundry, home and skin. One flat price, no code needed, free shipping either way." },
+    {
+      "type": "select",
+      "id": "scene_number",
+      "label": "Background scene",
+      "options": [
+        { "value": "1", "label": "Scene 1" },
+        { "value": "2", "label": "Scene 2" },
+        { "value": "3", "label": "Scene 3" },
+        { "value": "4", "label": "Scene 4" }
+      ],
+      "default": "3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tier",
+      "name": "Price tier",
+      "settings": [
+        { "type": "text", "id": "tag", "label": "Tag label", "default": "Starter" },
+        { "type": "range", "id": "product_count", "label": "Number of products", "min": 1, "max": 5, "default": 2 },
+        { "type": "text", "id": "tier_price", "label": "Flat price", "default": "₹349" },
+        { "type": "text", "id": "tier_compare_price", "label": "Compare-at price", "default": "₹598" },
+        { "type": "text", "id": "per_product_note", "label": "Per-product note", "default": "Flat ₹174 per product" },
+        { "type": "checkbox", "id": "is_best", "label": "Highlight as most popular", "default": false },
+        { "type": "text", "id": "button_text", "label": "Button text", "default": "Build this box" },
+        { "type": "url", "id": "button_link", "label": "Button link", "info": "Defaults to the Shop section" },
+        { "type": "header", "content": "Features" },
+        { "type": "text", "id": "feature_1", "label": "Feature 1", "default": "Pick any products" },
+        { "type": "text", "id": "feature_2", "label": "Feature 2", "default": "Free shipping across India" },
+        { "type": "text", "id": "feature_3", "label": "Feature 3" },
+        { "type": "header", "content": "Products shown (thumbnails)" },
+        { "type": "product", "id": "product_1", "label": "Product 1" },
+        { "type": "product", "id": "product_2", "label": "Product 2" },
+        { "type": "product", "id": "product_3", "label": "Product 3" },
+        { "type": "product", "id": "product_4", "label": "Product 4" },
+        { "type": "product", "id": "product_5", "label": "Product 5" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundles",
+      "blocks": [
+        { "type": "tier", "settings": { "tag": "Starter", "product_count": 2, "tier_price": "₹349", "tier_compare_price": "₹598", "per_product_note": "Flat ₹174 per product", "feature_1": "Pick any two products", "feature_2": "Free shipping across India" } },
+        { "type": "tier", "settings": { "tag": "Most popular", "product_count": 3, "tier_price": "₹499", "tier_compare_price": "₹897", "per_product_note": "Flat ₹166 per product", "is_best": true, "feature_1": "Pick any three products", "feature_2": "Covers kitchen and laundry", "feature_3": "Free shipping across India" } },
+        { "type": "tier", "settings": { "tag": "Whole home", "product_count": 5, "tier_price": "₹799", "tier_compare_price": "₹1495", "per_product_note": "Flat ₹160 per product", "feature_1": "Pick any five products", "feature_2": "Every room in one order", "feature_3": "Free shipping across India" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
