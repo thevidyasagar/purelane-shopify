@@ -11,23 +11,23 @@
   <div class="pl-hero-grid">
     <div class="pl-hero-copy">
       {% if section.settings.eyebrow != blank %}
-        <p class="pl-rule pl-rv">
+        <p class="pl-rule">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           <span class="pl-d4" style="color:var(--paper-2);text-transform:none;font-weight:600">{{ section.settings.eyebrow }}</span>
           <i></i>
         </p>
       {% endif %}
 
-      <h1 class="pl-d1 pl-rv pl-rv-d1">
+      <h1 class="pl-d1">
         {{ section.settings.heading_line_1 }}<br>
         <span class="pl-lime">{{ section.settings.heading_line_2 }}</span>
       </h1>
 
       {% if section.settings.subheading != blank %}
-        <p class="pl-lede pl-rv pl-rv-d2">{{ section.settings.subheading }}</p>
+        <p class="pl-lede">{{ section.settings.subheading }}</p>
       {% endif %}
 
-      <div class="pl-hero-cta pl-rv pl-rv-d3">
+      <div class="pl-hero-cta">
         {% if section.settings.cta_primary_text != blank %}
           <a href="{{ section.settings.cta_primary_link }}" class="pl-btn pl-btn-primary">
             {{ section.settings.cta_primary_text }}
@@ -43,7 +43,7 @@
 
       {% comment %} mobile badge strip — shown under copy on small screens {% endcomment %}
       {% if section.blocks.size > 0 %}
-        <div class="pl-badgestrip pl-rv pl-rv-d4">
+        <div class="pl-badgestrip">
           {% for block in section.blocks %}
             {% if block.type == 'badge' %}
               <div>
@@ -58,7 +58,7 @@
 
     {% comment %} desktop side badge rail {% endcomment %}
     {% if section.blocks.size > 0 %}
-      <div class="pl-badges pl-rv pl-rv-d3">
+      <div class="pl-badges">
         {% for block in section.blocks %}
           {% if block.type == 'badge' %}
             <div class="pl-badge" {{ block.shopify_attributes }}>
