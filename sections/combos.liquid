@@ -1,0 +1,176 @@
+{% comment %}
+  Combos — matches #combos in purelane-homepage.html.
+  A "combo" bundles several real products at a special fixed price.
+  Shopify has no native field for "3 products at one custom price",
+  so each combo is a block: merchant picks up to 3 real products
+  (for the image strip + real product titles) and types the combo's
+  own price/compare price/savings copy, which a marketing team can
+  edit without touching code.
+{% endcomment %}
+
+<section class="pl-sec" data-scene="{{ section.settings.scene_number }}" id="combos">
+  <div class="pl-wrap">
+    <div class="pl-panel-head pl-rv">
+      {% if section.settings.kicker != blank %}
+        <span class="pl-d4" style="color:var(--paper-3);letter-spacing:.22em;text-transform:uppercase;font-weight:700;font-size:11px">{{ section.settings.kicker }}</span>
+      {% endif %}
+      <h2 class="pl-d2" style="margin-top:12px">{{ section.settings.heading }}</h2>
+      <div class="pl-rule">
+        <i></i>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c0-6.5 3.5-11 8-12.5C20 15 16.5 20 12 21Z"/><path d="M12 21C12 14.5 8.5 10 4 8.5 4 15 7.5 20 12 21Z"/></svg>
+        <i></i>
+      </div>
+      {% if section.settings.subheading != blank %}
+        <p class="pl-lede" style="margin:14px auto 0">{{ section.settings.subheading }}</p>
+      {% endif %}
+    </div>
+
+    <div class="pl-comborail pl-rv">
+      {% for block in section.blocks %}
+        {% if block.type == 'combo' %}
+          {% assign combo_products = block.settings.product_1 | append: '' %}
+          <article class="pl-glass-2 pl-combo {% if block.settings.is_featured %}pl-featured{% endif %}" {{ block.shopify_attributes }}>
+            <div class="pl-tray">
+              {% if block.settings.save_text != blank %}
+                <span class="pl-save">{{ block.settings.save_text }}</span>
+              {% endif %}
+              {% if block.settings.flag_text != blank %}
+                <span class="pl-flag">{{ block.settings.flag_text }}</span>
+              {% endif %}
+              <div class="pl-stack">
+                {% for i in (1..3) %}
+                  {% assign prod_key = 'product_' | append: i %}
+                  {% assign combo_prod = block.settings[prod_key] %}
+                  {% assign label_key = 'product_' | append: i | append: '_label' %}
+                  {% assign combo_label = block.settings[label_key] %}
+                  {% if combo_prod != blank %}
+                    <span class="pl-it">
+                      {% if combo_prod.featured_image != blank %}
+                        <img src="{{ combo_prod.featured_image | image_url: width: 160 }}" alt="{{ combo_prod.title | escape }}" loading="lazy">
+                      {% endif %}
+                      <span>{{ combo_label | default: combo_prod.title }}</span>
+                    </span>
+                    {% unless forloop.last %}
+                      {% assign next_key = 'product_' | append: forloop.index | plus: 1 %}
+                      {% if block.settings[next_key] != blank %}<span class="pl-plus" aria-hidden="true">+</span>{% endif %}
+                    {% endunless %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <div class="pl-body">
+              <h3>{{ block.settings.title }}</h3>
+              <div class="pl-cnt">{{ block.settings.product_count }} products</div>
+              {% if block.settings.description != blank %}
+                <p class="pl-inc">{{ block.settings.description }}</p>
+              {% endif %}
+              <div class="pl-prow">
+                <strong>{{ block.settings.combo_price }}</strong>
+                {% if block.settings.compare_price != blank %}
+                  <s>{{ block.settings.compare_price }}</s>
+                {% endif %}
+                {% if block.settings.savings_text != blank %}
+                  <em>{{ block.settings.savings_text }}</em>
+                {% endif %}
+              </div>
+              <div class="pl-fine">Inclusive of all taxes &middot; COD available</div>
+              <a href="{{ block.settings.button_link | default: '#bundles' }}" class="pl-btn {% if block.settings.is_featured %}pl-btn-primary{% else %}pl-btn-ghost{% endif %}">
+                Shop bundle
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-6 6 6-6 6"/></svg>
+              </a>
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="pl-swipecue" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-6 6 6-6 6"/></svg>
+      Swipe for more combos
+    </div>
+    {% if section.settings.footnote != blank %}
+      <p class="pl-railnote">{{ section.settings.footnote }}</p>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Combos",
+  "tag": "section",
+  "class": "shopify-section-combos",
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Kicker text",
+      "default": "Pre-built to save you money"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Best selling combos"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Swipe through the boxes people order most. Each one is already priced below buying the same products on their own."
+    },
+    {
+      "type": "textarea",
+      "id": "footnote",
+      "label": "Footnote text",
+      "default": "Tapping \"Shop bundle\" opens the bundle picker with these products already added. You can still swap anything before you pay."
+    },
+    {
+      "type": "select",
+      "id": "scene_number",
+      "label": "Background scene",
+      "options": [
+        { "value": "1", "label": "Scene 1" },
+        { "value": "2", "label": "Scene 2" },
+        { "value": "3", "label": "Scene 3" },
+        { "value": "4", "label": "Scene 4" }
+      ],
+      "default": "3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "combo",
+      "name": "Combo",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Combo title", "default": "Kitchen essentials" },
+        { "type": "range", "id": "product_count", "label": "Products count (display)", "min": 1, "max": 5, "default": 3 },
+        { "type": "textarea", "id": "description", "label": "Description" },
+        { "type": "text", "id": "combo_price", "label": "Combo price", "info": "e.g. ₹499 — this is a bundled price, entered manually since it isn't any single product's price.", "default": "₹499" },
+        { "type": "text", "id": "compare_price", "label": "Compare-at price (crossed out)", "default": "₹897" },
+        { "type": "text", "id": "savings_text", "label": "Savings badge text", "default": "Save ₹398" },
+        { "type": "text", "id": "save_text", "label": "Tray save label", "default": "You save ₹398" },
+        { "type": "text", "id": "flag_text", "label": "Flag label (optional)", "info": "e.g. \"Most popular\" or \"Best value\"" },
+        { "type": "checkbox", "id": "is_featured", "label": "Highlight this combo", "default": false },
+        { "type": "url", "id": "button_link", "label": "Button link", "info": "Defaults to the Bundles section" },
+        { "type": "header", "content": "Products shown in this combo" },
+        { "type": "product", "id": "product_1", "label": "Product 1" },
+        { "type": "text", "id": "product_1_label", "label": "Product 1 caption", "info": "Defaults to product title" },
+        { "type": "product", "id": "product_2", "label": "Product 2" },
+        { "type": "text", "id": "product_2_label", "label": "Product 2 caption" },
+        { "type": "product", "id": "product_3", "label": "Product 3" },
+        { "type": "text", "id": "product_3_label", "label": "Product 3 caption" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Combos",
+      "blocks": [
+        { "type": "combo", "settings": { "title": "Kitchen essentials", "flag_text": "Most popular" } },
+        { "type": "combo", "settings": { "title": "Laundry care bundle" } },
+        { "type": "combo", "settings": { "title": "Complete home bundle", "is_featured": true, "flag_text": "Best value", "combo_price": "₹799", "compare_price": "₹1,495", "savings_text": "Save ₹696", "save_text": "Biggest saving" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
