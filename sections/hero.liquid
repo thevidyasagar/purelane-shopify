@@ -95,14 +95,29 @@
           <div class="pl-hslide {% if forloop.first %}pl-on{% endif %} pl-hs{{ slide_count }}"
                {{ block.shopify_attributes }}>
 
-            {% if p1 != blank %}
-              <div class="pl-hp pl-a pl-d1" style="background-image:url('{{ p1.featured_image | image_url: width: 500 }}');aspect-ratio:{{ p1.featured_image.aspect_ratio | default: 0.65 }}"></div>
+            {% if p1 != blank and p1.featured_image != blank %}
+              <img class="pl-hp pl-a pl-d1"
+                   src="{{ p1.featured_image | image_url: width: 600 }}"
+                   alt="{{ p1.featured_image.alt | default: p1.title | escape }}"
+                   width="{{ p1.featured_image.width }}"
+                   height="{{ p1.featured_image.height }}"
+                   loading="lazy">
             {% endif %}
-            {% if p2 != blank %}
-              <div class="pl-hp pl-b pl-d2" style="background-image:url('{{ p2.featured_image | image_url: width: 500 }}');aspect-ratio:{{ p2.featured_image.aspect_ratio | default: 0.65 }}"></div>
+            {% if p2 != blank and p2.featured_image != blank %}
+              <img class="pl-hp pl-b pl-d2"
+                   src="{{ p2.featured_image | image_url: width: 600 }}"
+                   alt="{{ p2.featured_image.alt | default: p2.title | escape }}"
+                   width="{{ p2.featured_image.width }}"
+                   height="{{ p2.featured_image.height }}"
+                   loading="lazy">
             {% endif %}
-            {% if p3 != blank %}
-              <div class="pl-hp pl-c pl-d3" style="background-image:url('{{ p3.featured_image | image_url: width: 500 }}');aspect-ratio:{{ p3.featured_image.aspect_ratio | default: 0.65 }}"></div>
+            {% if p3 != blank and p3.featured_image != blank %}
+              <img class="pl-hp pl-c pl-d3"
+                   src="{{ p3.featured_image | image_url: width: 600 }}"
+                   alt="{{ p3.featured_image.alt | default: p3.title | escape }}"
+                   width="{{ p3.featured_image.width }}"
+                   height="{{ p3.featured_image.height }}"
+                   loading="lazy">
             {% endif %}
 
             {% if lead != blank %}
