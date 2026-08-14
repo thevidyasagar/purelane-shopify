@@ -1,0 +1,62 @@
+{% comment %}
+  Reusable product card. Renders one .pl-card from a real Shopify product.
+
+  Accepts:
+    product        - required, a Shopify product object
+    pill_text      - optional, e.g. "Best seller" / "New" / "Top rated"
+    reveal_class   - optional, e.g. "pl-rv pl-rv-d1" for staggered scroll reveal
+{% endcomment %}
+
+{%- assign card_product = product -%}
+{%- assign card_pill = pill_text -%}
+
+<article class="pl-glass-2 pl-card {{ reveal_class }}">
+  <div class="pl-shot">
+    {% if card_product.featured_image != blank %}
+      <img src="{{ card_product.featured_image | image_url: width: 400 }}"
+           alt="{{ card_product.featured_image.alt | default: card_product.title | escape }}"
+           loading="lazy"
+           width="{{ card_product.featured_image.width }}"
+           height="{{ card_product.featured_image.height }}">
+    {% else %}
+      <span class="pl-noimg"><span>{{ card_product.title | truncate: 24 }}</span></span>
+    {% endif %}
+
+    {% if card_product.available == false %}
+      <span class="pl-pill pl-soldout">Sold out</span>
+    {% elsif card_pill != blank %}
+      <span class="pl-pill">{{ card_pill }}</span>
+    {% endif %}
+  </div>
+
+  <h4>{{ card_product.title }}</h4>
+
+  {% if card_product.metafields.reviews.rating != blank %}
+    <div class="pl-rate">
+      <b>&#9733; {{ card_product.metafields.reviews.rating.value.rating }}</b>
+      &middot; {{ card_product.metafields.reviews.rating_count }} reviews
+    </div>
+  {% endif %}
+
+  <div class="pl-pr">
+    <strong>{{ card_product.price | money_without_trailing_zeros }}</strong>
+    {% if card_product.compare_at_price > card_product.price %}
+      <s>{{ card_product.compare_at_price | money_without_trailing_zeros }}</s>
+      {% assign pct_off = card_product.compare_at_price | minus: card_product.price | times: 100 | divided_by: card_product.compare_at_price %}
+      <em>{{ pct_off }}% off</em>
+    {% endif %}
+  </div>
+
+  {% if card_product.available %}
+    <product-form>
+      {%- form 'product', card_product -%}
+        <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
+        <button type="submit" class="pl-btn pl-btn-ghost" {% if card_product.selected_or_first_available_variant.available == false %}disabled{% endif %}>
+          Add to cart
+        </button>
+      {%- endform -%}
+    </product-form>
+  {% else %}
+    <button type="button" class="pl-btn pl-btn-ghost" disabled>Sold out</button>
+  {% endif %}
+</article>
